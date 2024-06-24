@@ -3,7 +3,6 @@ import threading
 import sys
 import os
 
-directory_path = "/tmp"
 
 def handle_client(client_socket):
     request = client_socket.recv(1024).decode('utf-8')
@@ -65,7 +64,11 @@ def handle_client(client_socket):
 
 def main():
     print("Logs from your program will appear here!")
-
+    
+    global directory_path
+    if len(sys.argv) > 1 and sys.argv[1] == "--directory" and len(sys.argv) > 2:
+        directory_path = sys.argv[2]
+    
     server_socket = socket.create_server(("localhost", 4221), reuse_port=True)
 
     while True:
