@@ -14,7 +14,7 @@ def handle_client(client_socket):
             if len(parts) > 1:
                 method = parts[0]
                 url_path = parts[1]
-                print(" ".join(f"{method=}", f"{url_path =}"))
+                print(" ".join((f"{method=}", f"{url_path =}")))
 
                 headers = {}
                 i = 1
