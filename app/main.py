@@ -15,11 +15,15 @@ def handle_client(client_socket):
                 method = parts[0]
                 url_path = parts[1]
                 print(f"{method=}" + f"{url_path =}")
+
                 headers = {}
-                for line in lines[1:]:
-                    if line:
-                        header_name, header_value = line.split(":", 1)
+                i = 1
+                while i < len(lines) and lines[i]:
+                    if ':' in lines[i]:
+                        header_name, header_value = lines[i].split(":", 1)
                         headers[header_name.strip()] = header_value.strip()
+                    i += 1
+                
                 if method == "GET":
                     if url_path == '/':
                         response = "HTTP/1.1 200 OK\r\n\r\n".encode()
