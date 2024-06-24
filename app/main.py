@@ -54,6 +54,8 @@ def handle_client(client_socket):
                             f"Content-Length: {content_length}\r\n\r\n"
                         )
                         response = response.encode() + file_content
+                else:
+                    response = "HTTP/1.1 404 Not Found\r\n\r\n"
             else:
                 response = "HTTP/1.1 404 Not Found\r\n\r\n"
 
