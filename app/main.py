@@ -6,7 +6,7 @@ import os
 def handle_client(client_socket):
     try:
         request = client_socket.recv(1024).decode('utf-8')
-        lines = request.splitlines()
+        lines = request.split("\r\n")
         if lines:
             request_line = lines[0]
             parts = request_line.split()
@@ -23,7 +23,6 @@ def handle_client(client_socket):
                         headers[header_name.strip()] = header_value.strip()
                     i += 1
 
-                # Determine the response based on the URL path
                 if method == "GET":
                     if url_path == "/":
                         response = "HTTP/1.1 200 OK\r\n\r\n".encode()
@@ -69,9 +68,10 @@ def handle_client(client_socket):
                         filename = url_path[len("/files/"):]
                         file_path = os.path.join(directory_path, filename)
                         content_length = int(headers.get("Content-Length", 0))
-                        
+
                         # Read the request body
                         body = client_socket.recv(content_length)
+                        print(f"Received body: {body.decode('utf-8')}")
 
                         try:
                             with open(file_path, "wb") as f:
@@ -103,9 +103,12 @@ def main():
         directory_path = sys.argv[2]
 
     server_socket = socket.create_server(("localhost", 4221), reuse_port=True)
+    print("Server is listening on port 4221")
 
     while True:
         client_socket, client_address = server_socket.accept()
+        print(f"Connection from {client_address}")
+
         client_handler = threading.Thread(target=handle_client, args=(client_socket,))
         client_handler.start()
 
