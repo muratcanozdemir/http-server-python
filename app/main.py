@@ -15,7 +15,7 @@ def main():
         client_socket, client_address = server_socket.accept()
         # print(f"Connection from {client_address}")
 
-        request = client_socket.recv(1024)
+        # request = client_socket.recv(1024)
         # print(f"Received request: {request}")
 
         response = "HTTP/1.1 200 OK\r\n\r\n"
