@@ -29,8 +29,7 @@ def handle_client(client_socket):
                     content_length = int(headers["Content-Length"])
                     while len(body) < content_length:
                         body += client_socket.recv(1024)
-                    body = body.decode('utf-8')
-                    print(f"Received body: {body}")
+                    print(f"Received body: {body.decode('utf-8')}")
 
                 if method == "GET":
                     if url_path == "/":
@@ -80,7 +79,7 @@ def handle_client(client_socket):
 
                         try:
                             with open(file_path, "wb") as f:
-                                f.write(body.encode('utf-8'))
+                                f.write(body)
                             response = "HTTP/1.1 201 Created\r\n\r\n".encode()
                         except Exception as e:
                             print(f"Error writing file: {e}")
