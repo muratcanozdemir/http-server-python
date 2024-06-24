@@ -13,6 +13,7 @@ def handle_client(client_socket):
         parts = request_line.split()
         if len(parts) > 1:
             url_path = parts[1]
+            print(f"{url_path=}")
             headers = {}
             for line in lines[1:]:
                 if line:
