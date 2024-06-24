@@ -1,5 +1,9 @@
 import socket
 import threading
+import os
+import sys
+
+directory_path = "/tmp"
 
 def handle_client(client_socket):
     request = client_socket.recv(1024).decode('utf-8')
@@ -36,6 +40,19 @@ def handle_client(client_socket):
                     f"Content-Length: {content_length}\r\n\r\n"
                     f"{response_body}"
                 )
+            elif url_path.startswith("/files/"):
+                filename = url_path[len("/files/"):]
+                file_path = os.path.join(directory_path, filename)
+                if os.path.exists(file_path) and os.path.isfile(file_path):
+                    with open(file_path, 'rb') as file:
+                        file_content = file.read()
+                        content_length = len(file_content)
+                        response = (
+                            "HTTP/1.1 200 OK\r\n"
+                            "Content-Type: application/octet-stream\r\n"
+                            f"Content-Length: {content_length}\r\n\r\n"
+                        )
+                        response = response.encode() + file_content
             else:
                 response = "HTTP/1.1 404 Not Found\r\n\r\n"
 
@@ -51,6 +68,6 @@ def main():
         client_handler = threading.Thread(target=handle_client, args=(client_socket,))
 
         client_handler.start()
-        
+
 if __name__ == "__main__":
     main()
