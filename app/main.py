@@ -3,7 +3,6 @@ import threading
 import sys
 import os
 
-
 def handle_client(client_socket):
     try:
         request = client_socket.recv(1024).decode('utf-8')
@@ -23,9 +22,10 @@ def handle_client(client_socket):
                         header_name, header_value = lines[i].split(":", 1)
                         headers[header_name.strip()] = header_value.strip()
                     i += 1
-                
+
+                # Determine the response based on the URL path
                 if method == "GET":
-                    if url_path == '/':
+                    if url_path == "/":
                         response = "HTTP/1.1 200 OK\r\n\r\n".encode()
                     elif url_path.startswith("/echo/"):
                         echo_str = url_path[len("/echo/"):]
@@ -71,7 +71,7 @@ def handle_client(client_socket):
                         content_length = int(headers.get("Content-Length", 0))
                         
                         # Read the request body
-                        body = client_socket.recv(content_length).decode('utf-8')
+                        body = client_socket.recv(content_length)
 
                         try:
                             with open(file_path, "wb") as f:
@@ -83,7 +83,11 @@ def handle_client(client_socket):
                     else:
                         response = "HTTP/1.1 404 Not Found\r\n\r\n".encode()
                 else:
-                    response = "HTTP/1.1 404 Not Found\r\n\r\n".encode()
+                    response = "HTTP/1.1 405 Method Not Allowed\r\n\r\n".encode()
+            else:
+                response = "HTTP/1.1 400 Bad Request\r\n\r\n".encode()
+        else:
+            response = "HTTP/1.1 400 Bad Request\r\n\r\n".encode()
 
         client_socket.sendall(response)
     except Exception as e:
@@ -93,19 +97,17 @@ def handle_client(client_socket):
 
 def main():
     print("Logs from your program will appear here!")
-    
+
     global directory_path
     if len(sys.argv) > 1 and sys.argv[1] == "--directory" and len(sys.argv) > 2:
         directory_path = sys.argv[2]
-    
+
     server_socket = socket.create_server(("localhost", 4221), reuse_port=True)
 
     while True:
         client_socket, client_address = server_socket.accept()
         client_handler = threading.Thread(target=handle_client, args=(client_socket,))
-
         client_handler.start()
-        #test
 
 if __name__ == "__main__":
     main()
