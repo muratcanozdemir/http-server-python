@@ -20,7 +20,7 @@ def handle_client(client_socket):
                     if line:
                         header_name, header_value = line.split(":", 1)
                         headers[header_name.strip()] = header_value.strip()
-                if method == "GET""
+                if method == "GET":
                     if url_path == '/':
                         response = "HTTP/1.1 200 OK\r\n\r\n".encode()
                     elif url_path.startswith("/echo/"):
