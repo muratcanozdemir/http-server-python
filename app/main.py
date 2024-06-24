@@ -19,7 +19,7 @@ def handle_client(client_socket):
                     header_name, header_value = line.split(":", 1)
                     headers[header_name.strip()] = header_value.strip()
             if url_path == '/':
-                response = "HTTP/1.1 200 OK\r\n\r\n"
+                response = "HTTP/1.1 200 OK\r\n\r\n".encode()
             elif url_path.startswith("/echo/"):
                 echo_str = url_path[len("/echo/"):]
                 response_body = echo_str
@@ -28,7 +28,7 @@ def handle_client(client_socket):
                     "HTTP/1.1 200 OK\r\n"
                     f"Content-Type: text/plain\r\n"
                     f"Content-Length: {content_length}\r\n\r\n"
-                    f"{response_body}"
+                    f"{response_body}".encode()
                 )
             elif url_path == "/user-agent":
                 user_agent = headers.get("User-Agent", "Unknown")
@@ -38,7 +38,7 @@ def handle_client(client_socket):
                     "HTTP/1.1 200 OK\r\n"
                     f"Content-Type: text/plain\r\n"
                     f"Content-Length: {content_length}\r\n\r\n"
-                    f"{response_body}"
+                    f"{response_body}".encode()
                 )
             elif url_path.startswith("/files/"):
                 filename = url_path[len("/files/"):]
@@ -56,11 +56,11 @@ def handle_client(client_socket):
                     ).encode() + body
                 except Exception as e:
                     print(f"Error serving file: {e}")
-                    response = "HTTP/1.1 404 Not Found\r\n\r\n"
+                    response = "HTTP/1.1 404 Not Found\r\n\r\n".encode()
             else:
-                response = "HTTP/1.1 404 Not Found\r\n\r\n"
+                response = "HTTP/1.1 404 Not Found\r\n\r\n".encode()
 
-    client_socket.sendall(response.encode())
+    client_socket.sendall(response)
 
 def main():
     print("Logs from your program will appear here!")
