@@ -1,9 +1,8 @@
 import socket
 import threading
-import os
 import sys
 
-directory_path = "/tmp"
+directory = "/tmp"
 
 def handle_client(client_socket):
     request = client_socket.recv(1024).decode('utf-8')
@@ -41,21 +40,16 @@ def handle_client(client_socket):
                     f"Content-Length: {content_length}\r\n\r\n"
                     f"{response_body}"
                 )
-            elif url_path.startswith("/files/"):
-                filename = url_path[len("/files/"):]
-                file_path = os.path.join(directory_path, filename)
-                if os.path.exists(file_path) and os.path.isfile(file_path):
-                    with open(file_path, 'rb') as file:
-                        file_content = file.read()
-                        content_length = len(file_content)
-                        response = (
-                            "HTTP/1.1 200 OK\r\n"
-                            "Content-Type: application/octet-stream\r\n"
-                            f"Content-Length: {content_length}\r\n\r\n"
-                        )
-                        response = response.encode() + file_content
-                else:
-                    response = "HTTP/1.1 404 Not Found\r\n\r\n"
+            elif url_path.startswith("/files"):
+                directory = sys.argv[2]
+                filename = url_path[7:]
+                print(directory, filename)
+                try:
+                    with open(f"/{directory}/{filename}", "r") as f:
+                        body = f.read()
+                    response = f"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {len(body)}\r\n\r\n{body}".encode()
+                except Exception as e:
+                    response = f"HTTP/1.1 404 Not Found\r\n\r\n".encode()
             else:
                 response = "HTTP/1.1 404 Not Found\r\n\r\n"
 
