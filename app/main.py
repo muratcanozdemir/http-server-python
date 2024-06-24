@@ -1,8 +1,9 @@
 import socket
 import threading
 import sys
+import os
 
-directory = "/tmp"
+directory_path = "/tmp"
 
 def handle_client(client_socket):
     request = client_socket.recv(1024).decode('utf-8')
@@ -40,16 +41,23 @@ def handle_client(client_socket):
                     f"Content-Length: {content_length}\r\n\r\n"
                     f"{response_body}"
                 )
-            elif url_path.startswith("/files"):
-                directory = sys.argv[2]
-                filename = url_path[7:]
-                print(directory, filename)
+            elif url_path.startswith("/files/"):
+                filename = url_path[len("/files/"):]
+                file_path = os.path.join(directory_path, filename)
+                print(f"Trying to serve file: {file_path}")
+
                 try:
-                    with open(f"/{directory}/{filename}", "r") as f:
+                    with open(file_path, "rb") as f:
                         body = f.read()
-                    response = f"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: {len(body)}\r\n\r\n{body}"
+                    content_length = len(body)
+                    response = (
+                        "HTTP/1.1 200 OK\r\n"
+                        "Content-Type: application/octet-stream\r\n"
+                        f"Content-Length: {content_length}\r\n\r\n"
+                    ).encode() + body
                 except Exception as e:
-                    response = f"HTTP/1.1 404 Not Found\r\n\r\n"
+                    print(f"Error serving file: {e}")
+                    response = "HTTP/1.1 404 Not Found\r\n\r\n"
             else:
                 response = "HTTP/1.1 404 Not Found\r\n\r\n"
 
