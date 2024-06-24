@@ -14,7 +14,7 @@ def handle_client(client_socket):
             if len(parts) > 1:
                 method = parts[0]
                 url_path = parts[1]
-                print(f"{method=}" + f"{url_path =}")
+                print(" ".join(f"{method=}", f"{url_path =}"))
 
                 headers = {}
                 i = 1
@@ -74,7 +74,7 @@ def handle_client(client_socket):
                         body = client_socket.recv(content_length).decode('utf-8')
 
                         try:
-                            with open(file_path, "w") as f:
+                            with open(file_path, "wb") as f:
                                 f.write(body)
                             response = "HTTP/1.1 201 Created\r\n\r\n".encode()
                         except Exception as e:
