@@ -6,22 +6,31 @@ import os
 def handle_client(client_socket):
     try:
         request = client_socket.recv(1024).decode('utf-8')
+        headers = {}
+        body = b''
+
         lines = request.split("\r\n")
         if lines:
             request_line = lines[0]
             parts = request_line.split()
-            if len(parts) > 1:
+            if len(parts) >= 2:
                 method = parts[0]
                 url_path = parts[1]
-                print(" ".join((f"{method=}", f"{url_path =}")))
+                print(f"method='{method}', url_path='{url_path}'")
 
-                headers = {}
                 i = 1
                 while i < len(lines) and lines[i]:
                     if ':' in lines[i]:
                         header_name, header_value = lines[i].split(":", 1)
                         headers[header_name.strip()] = header_value.strip()
                     i += 1
+
+                if method == "POST" and "Content-Length" in headers:
+                    content_length = int(headers["Content-Length"])
+                    while len(body) < content_length:
+                        body += client_socket.recv(1024)
+                    body = body.decode('utf-8')
+                    print(f"Received body: {body}")
 
                 if method == "GET":
                     if url_path == "/":
@@ -67,15 +76,11 @@ def handle_client(client_socket):
                     if url_path.startswith("/files/"):
                         filename = url_path[len("/files/"):]
                         file_path = os.path.join(directory_path, filename)
-                        content_length = int(headers.get("Content-Length", 0))
-
-                        # Read the request body
-                        body = client_socket.recv(content_length)
-                        print(f"Received body: {body.decode('utf-8')}")
+                        os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
                         try:
                             with open(file_path, "wb") as f:
-                                f.write(body)
+                                f.write(body.encode('utf-8'))
                             response = "HTTP/1.1 201 Created\r\n\r\n".encode()
                         except Exception as e:
                             print(f"Error writing file: {e}")
