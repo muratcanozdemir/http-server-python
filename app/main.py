@@ -13,10 +13,10 @@ def main():
 
     while True:
         client_socket, client_address = server_socket.accept()
-        print(f"Connection from {client_address}")
+        # print(f"Connection from {client_address}")
 
         request = client_socket.recv(1024)
-        print(f"Received request: {request}")
+        # print(f"Received request: {request}")
 
         response = "HTTP/1.1 200 OK\r\n\r\n"
         client_socket.sendall(response.encode())
