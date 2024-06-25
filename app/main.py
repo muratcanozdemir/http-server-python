@@ -123,6 +123,7 @@ def handle_client(client_socket):
         print("Sending response:")
         print(response.decode('utf-8'))
         client_socket.sendall(response)
+        client_socket.shutdown(socket.SHUT_WR)
     except Exception as e:
         print(f"Error handling client: {e}")
     finally:
