@@ -95,6 +95,7 @@ def handle_client(client_socket):
                         os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
                         try:
+                            print('hereherjteirjtierjter')
                             with open(file_path, "wb") as f:
                                 f.write(body)
                             response = "HTTP/1.1 201 Created\r\n\r\n".encode()
