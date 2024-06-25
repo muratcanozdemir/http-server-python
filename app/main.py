@@ -88,7 +88,7 @@ def handle_client(client_socket):
                             response = "HTTP/1.1 404 Not Found\r\n\r\n".encode()
                 elif method == "POST":
                     if url_path.startswith("/files/"):
-                        print("hereeee")
+                        print("hereee")
                         filename = url_path[len("/files/"):]
                         file_path = os.path.join(directory_path, filename)
                         print(file_path)
