@@ -92,7 +92,6 @@ def handle_client(client_socket):
                         filename = url_path[len("/files/"):]
                         file_path = os.path.join(directory_path, filename)
                         print(file_path)
-                        os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
                         try:
                             print('hereherjteirjtierjter')
