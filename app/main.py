@@ -44,7 +44,6 @@ def handle_client(client_socket):
                     # If body is not fully read, continue reading from the socket
                     while len(body) < content_length:
                         body += client_socket.recv(content_length - len(body))
-                        print(body)
 
                 if method == "GET":
                     if url_path == "/":
@@ -88,20 +87,16 @@ def handle_client(client_socket):
                             response = "HTTP/1.1 404 Not Found\r\n\r\n".encode()
                 elif method == "POST":
                     if url_path.startswith("/files/"):
-                        print("hereee")
                         filename = url_path[len("/files/"):]
                         file_path = os.path.join(directory_path, filename)
-                        print(file_path)
+
+                        # Create the directory if it doesn't exist
+                        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                        print(f"Creating file: {file_path}")
 
                         try:
-                            print('hereherjteirjtierjter')
-                            with open(file_path, 'a'):
-                                os.utime(file_path, None)
-                            print('touch')
                             with open(file_path, "wb") as f:
-                                print('writing')
                                 f.write(body)
-                            print('done')
                             response = "HTTP/1.1 201 Created\r\n\r\n".encode()
                         except Exception as e:
                             print(f"Error writing file: {e}")
