@@ -5,6 +5,7 @@ import os
 
 def handle_client(client_socket):
     try:
+        # Read initial request data
         request_data = b""
         while True:
             data = client_socket.recv(1024)
@@ -12,11 +13,13 @@ def handle_client(client_socket):
                 break
             request_data += data
 
-        request_text = request_data.decode('utf-8')
         headers = {}
         body = b''
 
+        # Decode and split request into lines
+        request_text = request_data.decode('utf-8')
         lines = request_text.split("\r\n")
+
         if lines:
             request_line = lines[0]
             parts = request_line.split()
@@ -33,12 +36,11 @@ def handle_client(client_socket):
                         headers[header_name.strip()] = header_value.strip()
                     i += 1
 
-                # Handle POST method
-                if method == "POST" and "Content-Length" in headers:
+                # Read the body based on Content-Length header
+                if "Content-Length" in headers:
                     content_length = int(headers["Content-Length"])
-                    body = request_data.split(b"\r\n\r\n", 1)[1]
-                    if len(body) < content_length:
-                        body += client_socket.recv(content_length - len(body))
+                    body_start = request_text.find("\r\n\r\n") + 4
+                    body = request_data[body_start:body_start+content_length]
 
                 if method == "GET":
                     if url_path == "/":
