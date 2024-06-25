@@ -5,6 +5,7 @@ import os
 
 def handle_client(client_socket):
     try:
+        # Read initial request data
         request_data = b""
         while True:
             data = client_socket.recv(1024)
@@ -110,6 +111,7 @@ def handle_client(client_socket):
         else:
             response = "HTTP/1.1 400 Bad Request\r\n\r\n".encode()
 
+        # Send response back to client
         client_socket.sendall(response)
     except Exception as e:
         print(f"Error handling client: {e}")
