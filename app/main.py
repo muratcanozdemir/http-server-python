@@ -106,7 +106,7 @@ def handle_client(client_socket):
                         try:
                             with open(file_path, "wb") as f:
                                 f.write(body)
-                            response = "HTTP/1.1 201 Created\r\n\r\n".encode()
+                                response = "HTTP/1.1 201 Created\r\n\r\n".encode()
                         except Exception as e:
                             print(f"Error writing file: {e}")
                             response = "HTTP/1.1 500 Internal Server Error\r\n\r\n".encode()
