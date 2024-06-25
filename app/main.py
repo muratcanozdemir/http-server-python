@@ -5,13 +5,15 @@ import os
 
 def handle_client(client_socket):
     try:
-        # Read initial request data
         request_data = b""
         while True:
             data = client_socket.recv(1024)
             if not data:
                 break
             request_data += data
+
+        print("Complete request received:")
+        print(request_data.decode('utf-8'))
 
         headers = {}
         body = b''
@@ -36,6 +38,10 @@ def handle_client(client_socket):
                         headers[header_name.strip()] = header_value.strip()
                     i += 1
 
+                print("Headers received:")
+                for header, value in headers.items():
+                    print(f"{header}: {value}")
+
                 # Read the body based on Content-Length header
                 if "Content-Length" in headers:
                     content_length = int(headers["Content-Length"])
@@ -45,6 +51,8 @@ def handle_client(client_socket):
                     # If body is not fully read, continue reading from the socket
                     while len(body) < content_length:
                         body += client_socket.recv(content_length - len(body))
+                    
+                    print(f"Body received: {body.decode('utf-8')}")
 
                 if method == "GET":
                     if url_path == "/":
@@ -112,6 +120,8 @@ def handle_client(client_socket):
             response = "HTTP/1.1 400 Bad Request\r\n\r\n".encode()
 
         # Send response back to client
+        print("Sending response:")
+        print(response.decode('utf-8'))
         client_socket.sendall(response)
     except Exception as e:
         print(f"Error handling client: {e}")
