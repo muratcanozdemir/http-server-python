@@ -97,8 +97,11 @@ def handle_client(client_socket):
                             print('hereherjteirjtierjter')
                             with open(file_path, 'a'):
                                 os.utime(file_path, None)
+                            print('touch')
                             with open(file_path, "wb") as f:
+                                print('writing')
                                 f.write(body)
+                            print('done')
                             response = "HTTP/1.1 201 Created\r\n\r\n".encode()
                         except Exception as e:
                             print(f"Error writing file: {e}")
