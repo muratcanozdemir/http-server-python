@@ -5,7 +5,6 @@ import os
 
 def handle_client(client_socket):
     try:
-        # Read initial request data
         request_data = b""
         while True:
             data = client_socket.recv(1024)
@@ -41,6 +40,10 @@ def handle_client(client_socket):
                     content_length = int(headers["Content-Length"])
                     body_start = request_text.find("\r\n\r\n") + 4
                     body = request_data[body_start:body_start+content_length]
+                    
+                    # If body is not fully read, continue reading from the socket
+                    while len(body) < content_length:
+                        body += client_socket.recv(content_length - len(body))
 
                 if method == "GET":
                     if url_path == "/":
