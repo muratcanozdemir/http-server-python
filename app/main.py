@@ -95,6 +95,8 @@ def handle_client(client_socket):
 
                         try:
                             print('hereherjteirjtierjter')
+                            with open(file_path, 'a'):
+                                os.utime(file_path, None)
                             with open(file_path, "wb") as f:
                                 f.write(body)
                             response = "HTTP/1.1 201 Created\r\n\r\n".encode()
