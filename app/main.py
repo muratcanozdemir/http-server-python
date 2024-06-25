@@ -5,12 +5,18 @@ import os
 
 def handle_client(client_socket):
     try:
-        # Read initial request data
-        request = client_socket.recv(1024).decode('utf-8')
+        request_data = b""
+        while True:
+            data = client_socket.recv(1024)
+            if not data:
+                break
+            request_data += data
+
+        request_text = request_data.decode('utf-8')
         headers = {}
         body = b''
 
-        lines = request.split("\r\n")
+        lines = request_text.split("\r\n")
         if lines:
             request_line = lines[0]
             parts = request_line.split()
@@ -27,10 +33,12 @@ def handle_client(client_socket):
                         headers[header_name.strip()] = header_value.strip()
                     i += 1
 
-                # Read the remaining data if there's a Content-Length header
-                if "Content-Length" in headers:
+                # Handle POST method
+                if method == "POST" and "Content-Length" in headers:
                     content_length = int(headers["Content-Length"])
-                    body += client_socket.recv(content_length - len(body))
+                    body = request_data.split(b"\r\n\r\n", 1)[1]
+                    if len(body) < content_length:
+                        body += client_socket.recv(content_length - len(body))
 
                 if method == "GET":
                     if url_path == "/":
