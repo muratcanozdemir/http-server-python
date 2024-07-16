@@ -18,11 +18,13 @@ def handle_client(client_socket):
         headers = {}
         body = b''
 
-        # Decode and split request into line
+        # Decode and split request into lines
         try:
             lines = request_data.decode('utf-8').split("\r\n")
         except UnicodeDecodeError:
             client_socket.sendall(b"HTTP/1.1 400 Bad Request\r\n\r\n")
+            client_socket.shutdown(socket.SHUT_WR)
+            client_socket.close()
             return
 
         if lines:
@@ -85,7 +87,6 @@ def handle_client(client_socket):
         print("Sending response:")
         print(response.decode('utf-8', errors='replace'))
         client_socket.sendall(response)
-        client_socket.shutdown(socket.SHUT_WR)
     except Exception as e:
         print(f"Error handling client: {e}")
         try:
@@ -93,6 +94,10 @@ def handle_client(client_socket):
         except Exception as e:
             print(f"Failed to send error response: {e}")
     finally:
+        try:
+            client_socket.shutdown(socket.SHUT_WR)
+        except Exception as e:
+            print(f"Failed to shutdown socket: {e}")
         client_socket.close()
 
 def main():
