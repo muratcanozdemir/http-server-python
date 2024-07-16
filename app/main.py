@@ -23,7 +23,6 @@ def handle_client(client_socket):
             request_text = request_data.decode('utf-8')
         except UnicodeDecodeError:
             client_socket.sendall(b"HTTP/1.1 400 Bad Request\r\n\r\n")
-            client_socket.close()
             return
 
         lines = request_text.split("\r\n")
@@ -89,7 +88,6 @@ def handle_client(client_socket):
         print(response.decode('utf-8', errors='replace'))
         client_socket.sendall(response)
         client_socket.shutdown(socket.SHUT_WR)
-        client_socket.close()
     except Exception as e:
         print(f"Error handling client: {e}")
         try:
