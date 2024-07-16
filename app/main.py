@@ -23,8 +23,6 @@ def handle_client(client_socket):
             request_text = request_data.decode('utf-8')
         except UnicodeDecodeError:
             client_socket.sendall(b"HTTP/1.1 400 Bad Request\r\n\r\n")
-            client_socket.shutdown(socket.SHUT_WR)
-            client_socket.close()
             return
 
         lines = request_text.split("\r\n")
