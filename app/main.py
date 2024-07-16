@@ -18,7 +18,7 @@ def handle_client(client_socket):
         headers = {}
         body = b''
 
-        # Decode and split request into lines
+        # Decode and split request into line
         try:
             request_text = request_data.decode('utf-8')
             print(request_data, "\n", request_text)
