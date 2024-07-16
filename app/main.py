@@ -33,6 +33,7 @@ def handle_client(client_socket):
             request_line = lines[0]
             parts = request_line.split()
             if len(parts) >= 2:
+                print(parts)
                 method = parts[0]
                 url_path = parts[1]
                 print(f"method='{method}', url_path='{url_path}'")
