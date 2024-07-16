@@ -33,16 +33,15 @@ def handle_client(client_socket):
             request_line = lines[0]
             parts = request_line.split()
             if len(parts) >= 2:
-                print(parts)
                 method = parts[0]
                 url_path = parts[1]
                 print(f"method='{method}', url_path='{url_path}'")
 
                 # Read headers
                 i = 1
-                while i < len(parts) and parts[i]:
-                    if ':' in parts[i]:
-                        header_name, header_value = parts[i].split(":", 1)
+                while i < len(lines) and lines[i]:
+                    if ':' in lines[i]:
+                        header_name, header_value = lines[i].split(":", 1)
                         headers[header_name.strip()] = header_value.strip()
                     i += 1
 
@@ -91,19 +90,14 @@ def handle_client(client_socket):
         print(response.decode('utf-8', errors='replace'))
         client_socket.sendall(response)
         client_socket.shutdown(socket.SHUT_WR)
-        client_socket.close()
     except Exception as e:
         print(f"Error handling client: {e}")
         try:
             client_socket.sendall(b"HTTP/1.1 500 Internal Server Error\r\n\r\n")
         except Exception as e:
             print(f"Failed to send error response: {e}")
-        finally:
-            client_socket.shutdown(socket.SHUT_WR)
-            client_socket.close()
     finally:
-        if not client_socket._closed:
-            client_socket.close()
+        client_socket.close()
 
 def main():
     print("Logs from your program will appear here!")
