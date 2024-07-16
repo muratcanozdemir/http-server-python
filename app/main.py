@@ -13,13 +13,19 @@ def handle_client(client_socket):
             request_data += data
 
         print("Complete request received:")
-        print(request_data.decode('utf-8'))
+        print(request_data.decode('utf-8', errors='replace'))
 
         headers = {}
         body = b''
 
         # Decode and split request into lines
-        request_text = request_data.decode('utf-8')
+        try:
+            request_text = request_data.decode('utf-8')
+        except UnicodeDecodeError:
+            client_socket.sendall(b"HTTP/1.1 400 Bad Request\r\n\r\n")
+            client_socket.close()
+            return
+
         lines = request_text.split("\r\n")
 
         if lines:
@@ -52,76 +58,35 @@ def handle_client(client_socket):
                     while len(body) < content_length:
                         body += client_socket.recv(content_length - len(body))
                     
-                    print(f"Body received: {body.decode('utf-8')}")
+                    print(f"Body received: {body.decode('utf-8', errors='replace')}")
 
-                if method == "GET":
-                    if url_path == "/":
-                        response = "HTTP/1.1 200 OK\r\n\r\n".encode()
-                    elif url_path.startswith("/echo/"):
-                        echo_str = url_path[len("/echo/"):]
-                        response_body = echo_str
-                        content_length = len(response_body)
-                        response = (
-                            "HTTP/1.1 200 OK\r\n"
-                            f"Content-Type: text/plain\r\n"
-                            f"Content-Length: {content_length}\r\n\r\n"
-                            f"{response_body}".encode()
-                        )
-                    elif url_path == "/user-agent":
-                        user_agent = headers.get("User-Agent", "Unknown")
-                        response_body = user_agent
-                        content_length = len(response_body)
-                        response = (
-                            "HTTP/1.1 200 OK\r\n"
-                            f"Content-Type: text/plain\r\n"
-                            f"Content-Length: {content_length}\r\n\r\n"
-                            f"{response_body}".encode()
-                        )
-                    elif url_path.startswith("/files/"):
-                        filename = url_path[len("/files/"):]
-                        file_path = os.path.join(directory_path, filename)
-                        print(f"Trying to serve file: {file_path}")
-
-                        try:
-                            with open(file_path, "rb") as f:
-                                body = f.read()
-                            content_length = len(body)
-                            response = (
-                                "HTTP/1.1 200 OK\r\n"
-                                "Content-Type: application/octet-stream\r\n"
-                                f"Content-Length: {content_length}\r\n\r\n"
-                            ).encode() + body
-                        except Exception as e:
-                            print(f"Error serving file: {e}")
-                            response = "HTTP/1.1 404 Not Found\r\n\r\n".encode()
-                elif method == "POST":
+                if method == "POST":
                     if url_path.startswith("/files/"):
                         filename = url_path[len("/files/"):]
                         file_path = os.path.join(directory_path, filename)
 
-                        # Create the directory if it doesn't exist
                         os.makedirs(os.path.dirname(file_path), exist_ok=True)
                         print(f"Creating file: {file_path}")
 
                         try:
                             with open(file_path, "wb") as f:
                                 f.write(body)
-                                response = "HTTP/1.1 201 Created\r\n\r\n".encode()
+                                response = b"HTTP/1.1 201 Created\r\n\r\n"
                         except Exception as e:
                             print(f"Error writing file: {e}")
-                            response = "HTTP/1.1 500 Internal Server Error\r\n\r\n".encode()
+                            response = b"HTTP/1.1 500 Internal Server Error\r\n\r\n"
                     else:
-                        response = "HTTP/1.1 404 Not Found\r\n\r\n".encode()
+                        response = b"HTTP/1.1 404 Not Found\r\n\r\n"
                 else:
-                    response = "HTTP/1.1 405 Method Not Allowed\r\n\r\n".encode()
+                    response = b"HTTP/1.1 405 Method Not Allowed\r\n\r\n"
             else:
-                response = "HTTP/1.1 400 Bad Request\r\n\r\n".encode()
+                response = b"HTTP/1.1 400 Bad Request\r\n\r\n"
         else:
-            response = "HTTP/1.1 400 Bad Request\r\n\r\n".encode()
+            response = b"HTTP/1.1 400 Bad Request\r\n\r\n"
 
         # Send response back to client
         print("Sending response:")
-        print(response.decode('utf-8'))
+        print(response.decode('utf-8', errors='replace'))
         client_socket.sendall(response)
         client_socket.shutdown(socket.SHUT_WR)
     except Exception as e:
