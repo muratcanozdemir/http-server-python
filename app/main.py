@@ -91,6 +91,10 @@ def handle_client(client_socket):
         client_socket.shutdown(socket.SHUT_WR)
     except Exception as e:
         print(f"Error handling client: {e}")
+        try:
+            client_socket.sendall(b"HTTP/1.1 500 Internal Server Error\r\n\r\n")
+        except:
+            pass
     finally:
         client_socket.close()
 
