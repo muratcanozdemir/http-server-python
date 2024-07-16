@@ -20,14 +20,10 @@ def handle_client(client_socket):
 
         # Decode and split request into line
         try:
-            request_text = request_data.decode('utf-8')
-            print(request_data, "\n", request_text)
+            lines = request_data.decode('utf-8').split("\r\n")
         except UnicodeDecodeError:
             client_socket.sendall(b"HTTP/1.1 400 Bad Request\r\n\r\n")
             return
-
-        lines = request_text.split("\r\n")
-        print(lines)
 
         if lines:
             request_line = lines[0]
@@ -52,7 +48,7 @@ def handle_client(client_socket):
                 # Read the body based on Content-Length header
                 if "Content-Length" in headers:
                     content_length = int(headers["Content-Length"])
-                    body_start = request_text.find("\r\n\r\n") + 4
+                    body_start = request_data.find(b"\r\n\r\n") + 4
                     body = request_data[body_start:body_start+content_length]
                     
                     # If body is not fully read, continue reading from the socket
