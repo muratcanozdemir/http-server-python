@@ -21,11 +21,13 @@ def handle_client(client_socket):
         # Decode and split request into lines
         try:
             request_text = request_data.decode('utf-8')
+            print(request_data, "\n", request_text)
         except UnicodeDecodeError:
             client_socket.sendall(b"HTTP/1.1 400 Bad Request\r\n\r\n")
             return
 
         lines = request_text.split("\r\n")
+        print(lines)
 
         if lines:
             request_line = lines[0]
